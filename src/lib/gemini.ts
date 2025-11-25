@@ -2,100 +2,131 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Helper to get a fresh model instance
 function getModel() {
-    const apiKey = process.env.GEMINI_API_KEY || "";
-    if (!apiKey) {
-        throw new Error("GEMINI_API_KEY environment variable is not set");
-    }
-    const genAI = new GoogleGenerativeAI(apiKey);
-    return genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const apiKey = process.env.GEMINI_API_KEY || "";
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY environment variable is not set");
+  }
+  const genAI = new GoogleGenerativeAI(apiKey);
+  return genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 }
 
 export async function generateChatResponse(
-    history: { role: "user" | "model"; parts: string }[],
-    context?: string
+  history: { role: "user" | "model"; parts: string }[],
+  context?: string
 ) {
-    const chat = getModel().startChat({
-        history: history.map((h) => ({
-            role: h.role,
-            parts: [{ text: h.parts }],
-        })),
-    });
+  const chat = getModel().startChat({
+    history: history.map((h) => ({
+      role: h.role,
+      parts: [{ text: h.parts }],
+    })),
+  });
 
-    let prompt = "";
-    if (context) {
-        prompt += `CONTEXT:\n${context}\n\n`;
-    }
+  let prompt = "";
+  if (context) {
+    prompt += `CONTEXT:\n${context}\n\n`;
+  }
 
-    // We assume the last message is the new user prompt, but startChat manages history.
-    // Actually, startChat takes the *past* history. The new message is sent via sendMessage.
-    // So we shouldn't pass the *entire* history to startChat if we want to send a new message.
-    // But for a stateless API route, we usually pass the whole history.
-    // Let's adjust: The caller should pass history *excluding* the current new message, 
-    // or we just use generateContent if we want to manage it manually.
-    // For simplicity in this "Agentic" flow, we might want to just use generateContent with a constructed prompt
-    // or use startChat with the full history.
+  // We assume the last message is the new user prompt, but startChat manages history.
+  // Actually, startChat takes the *past* history. The new message is sent via sendMessage.
+  // So we shouldn't pass the *entire* history to startChat if we want to send a new message.
+  // But for a stateless API route, we usually pass the whole history.
+  // Let's adjust: The caller should pass history *excluding* the current new message, 
+  // or we just use generateContent if we want to manage it manually.
+  // For simplicity in this "Context-Aware" flow, we might want to just use generateContent with a constructed prompt
+  // or use startChat with the full history.
 
-    // Let's assume the caller handles the "last message" logic.
-    // If we are just generating a response to the *latest* input which is NOT in history yet:
-    return chat;
+  // Let's assume the caller handles the "last message" logic.
+  // If we are just generating a response to the *latest* input which is NOT in history yet:
+  return chat;
 }
 
+import { cacheQuerySelection, getCachedQuerySelection } from "./cache";
+
 export async function analyzeFileSelection(
-    question: string,
-    fileTree: string[]
+  question: string,
+  fileTree: string[],
+  owner?: string,
+  repo?: string
 ): Promise<string[]> {
-    // Ask Gemini which files are relevant
-    const prompt = `
-    You are an expert software engineer.
-    You are an expert software engineer and architect.
-    I have a GitHub repository with the following file structure:
-    ${fileTree.slice(0, 500).join("\n")} 
-    (List truncated if too long)
+  // 1. SMART BYPASS: Check if the user explicitly mentioned a file
+  // We look for exact matches of filenames in the query
+  const mentionedFiles = fileTree.filter(path => {
+    const filename = path.split('/').pop();
+    if (!filename) return false;
+    // Check if the filename appears in the question (case-insensitive)
+    // We use word boundary or whitespace check to avoid partial matches (e.g. "auth" matching "author")
+    // But simple includes is faster and usually fine for filenames
+    return question.toLowerCase().includes(filename.toLowerCase());
+  });
 
-    You are given a list of file paths from a GitHub repository.
-    Your job is to select the files that are relevant to answering the user's query.
+  // If we found mentioned files, return them immediately (plus package.json/README if available)
+  if (mentionedFiles.length > 0) {
+    console.log("⚡ Smart Bypass: Found mentioned files:", mentionedFiles);
 
+    // Always add context files if they exist in the tree but weren't mentioned
+    const commonFiles = ["package.json", "README.md", "tsconfig.json"];
+    const additionalContext = fileTree.filter(f => commonFiles.includes(f) && !mentionedFiles.includes(f));
+
+    return [...mentionedFiles, ...additionalContext].slice(0, 10);
+  }
+
+  // 2. QUERY CACHING: Check if we've answered this exact query for this repo before
+  if (owner && repo) {
+    const cachedSelection = await getCachedQuerySelection(owner, repo, question);
+    if (cachedSelection) {
+      console.log("🧠 Query Cache Hit:", question);
+      return cachedSelection;
+    }
+  }
+
+  // 3. AI SELECTION (Fallback)
+  // Optimized prompt for speed (shorter, less tokens)
+  const prompt = `
+    Select relevant files for this query from the list below.
     Query: "${question}"
-
+    
+    Files:
+    ${fileTree.slice(0, 300).join("\n")}
+    
     Rules:
-    1. Select ONLY the files that are necessary to answer the query.
-    2. If the query is broad (e.g., "explain the app", "summary", "README"), select key files like package.json, README.md, main entry points (src/index.ts, src/App.tsx, src/app/page.tsx), and core routes.
-    3. If the query is specific (e.g., "how does auth work?"), select files related to that feature.
-    4. If the query is about a specific file, select that file.
-    5. **FOLDERS**: If the user asks about a specific folder (e.g., ".vscode", "src/components"), select the **FILES** within that folder (e.g., ".vscode/settings.json"). Do NOT select the folder path itself.
-    6. **WIT & SARCASM**: If the user is being witty, sarcastic, or asking a "meta" question (e.g., "Who wrote this garbage?", "Are you stupid?", "Tell me a joke"), DO NOT SELECT ANY FILES. Return an empty array []. We do not need code context to be witty.
-    7. **LIMIT**: Select at most 30 files.
-    8. **IGNORE**: Do not select node_modules, .git, .next, .lock files, or images unless explicitly asked. **EXCEPTION**: If the user specifically asks for ".vscode", ".github", or other config folders, YOU MUST SELECT THEM.
+    - Return JSON: { "files": ["path/to/file"] }
+    - Max 15 files.
+    - If unsure, pick README.md and package.json.
+    - NO EXPLANATION. JSON ONLY.
+    `;
 
-    Return a JSON object with a single key "files" containing an array of the selected file paths.
-    Example: { "files": ["src/index.ts", "package.json"] }
-  `;
-
+  try {
     const result = await getModel().generateContent(prompt);
     const response = result.response.text();
+    const cleanResponse = response.replace(/```json/g, "").replace(/```/g, "").trim();
+    const parsed = JSON.parse(cleanResponse);
 
-    try {
-        // Clean up markdown code blocks if present
-        const cleanResponse = response.replace(/```json/g, "").replace(/```/g, "").trim();
-        const parsed = JSON.parse(cleanResponse);
-        return parsed.files || [];
-    } catch (e) {
-        console.error("Failed to parse file selection", e);
-        return [];
+    const selectedFiles = parsed.files || [];
+
+    // Cache the result if we have owner/repo
+    if (owner && repo && selectedFiles.length > 0) {
+      await cacheQuerySelection(owner, repo, question, selectedFiles);
     }
+
+    return selectedFiles;
+  } catch (e) {
+    console.error("Failed to parse file selection", e);
+    // Fallback to safe defaults
+    return fileTree.filter(f => f === "README.md" || f === "package.json");
+  }
 }
 
 export async function answerWithContext(
-    question: string,
-    context: string,
-    repoDetails: { owner: string; repo: string },
-    profileData?: any, // Optional profile data for generating developer cards
-    history: { role: "user" | "model"; content: string }[] = []
+  question: string,
+  context: string,
+  repoDetails: { owner: string; repo: string },
+  profileData?: any, // Optional profile data for generating developer cards
+  history: { role: "user" | "model"; content: string }[] = []
 ): Promise<string> {
-    // Format history for the prompt
-    const historyText = history.map(msg => `${msg.role === "user" ? "User" : "RepoMind"}: ${msg.content}`).join("\n\n");
+  // Format history for the prompt
+  const historyText = history.map(msg => `${msg.role === "user" ? "User" : "RepoMind"}: ${msg.content}`).join("\n\n");
 
-    const prompt = `
+  const prompt = `
     You are a specialized coding assistant called "RepoMind".
     
     SYSTEM IDENTITY:
@@ -256,8 +287,8 @@ export async function answerWithContext(
     Answer:
     `;
 
-    const result = await getModel().generateContent(prompt);
-    return result.response.text();
+  const result = await getModel().generateContent(prompt);
+  return result.response.text();
 }
 
 /**
@@ -265,16 +296,16 @@ export async function answerWithContext(
  * Yields text chunks as they are generated by Gemini
  */
 export async function* answerWithContextStream(
-    question: string,
-    context: string,
-    repoDetails: { owner: string; repo: string },
-    profileData?: any,
-    history: { role: "user" | "model"; content: string }[] = []
+  question: string,
+  context: string,
+  repoDetails: { owner: string; repo: string },
+  profileData?: any,
+  history: { role: "user" | "model"; content: string }[] = []
 ): AsyncGenerator<string> {
-    // Format history for the prompt
-    const historyText = history.map(msg => `${msg.role === "user" ? "User" : "RepoMind"}: ${msg.content} `).join("\n\n");
+  // Format history for the prompt
+  const historyText = history.map(msg => `${msg.role === "user" ? "User" : "RepoMind"}: ${msg.content} `).join("\n\n");
 
-    const prompt = `
+  const prompt = `
     You are a specialized coding assistant called "RepoMind".
     
     SYSTEM IDENTITY:
@@ -435,15 +466,15 @@ export async function* answerWithContextStream(
     Answer:
   `;
 
-    const result = await getModel().generateContentStream(prompt);
+  const result = await getModel().generateContentStream(prompt);
 
 
-    for await (const chunk of result.stream) {
-        const text = chunk.text();
-        if (text) {
-            yield text;
-        }
+  for await (const chunk of result.stream) {
+    const text = chunk.text();
+    if (text) {
+      yield text;
     }
+  }
 }
 
 /**
@@ -451,8 +482,8 @@ export async function* answerWithContextStream(
  * Takes potentially invalid Mermaid code and returns a corrected version
  */
 export async function fixMermaidSyntax(code: string): Promise<string | null> {
-    try {
-        const prompt = `You are a Mermaid diagram syntax expert. Fix the following Mermaid diagram code to make it valid.
+  try {
+    const prompt = `You are a Mermaid diagram syntax expert. Fix the following Mermaid diagram code to make it valid.
 
 CRITICAL RULES:
 1. **Node Labels**: MUST be in double quotes inside brackets: A["Label Text"]
@@ -472,18 +503,18 @@ Return ONLY the corrected Mermaid code in a markdown code block. Do not explain.
 [corrected code here]
 \`\`\``;
 
-        const result = await getModel().generateContent(prompt);
-        const response = result.response.text();
+    const result = await getModel().generateContent(prompt);
+    const response = result.response.text();
 
-        // Extract code from markdown block
-        const match = response.match(/```mermaid\s*([\s\S]*?)\s*```/);
-        if (match && match[1]) {
-            return match[1].trim();
-        }
-
-        return null;
-    } catch (error) {
-        console.error('AI Mermaid fix failed:', error);
-        return null;
+    // Extract code from markdown block
+    const match = response.match(/```mermaid\s*([\s\S]*?)\s*```/);
+    if (match && match[1]) {
+      return match[1].trim();
     }
+
+    return null;
+  } catch (error) {
+    console.error('AI Mermaid fix failed:', error);
+    return null;
+  }
 }

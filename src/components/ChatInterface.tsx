@@ -372,7 +372,7 @@ export function ChatInterface({ repoContext, onToggleSidebar }: ChatInterfacePro
 
             // Step 1: Analyze files
             setStreamingStatus({ message: "Selecting relevant files...", progress: 10 });
-            const { relevantFiles, fileCount } = await analyzeRepoFiles(input, filePaths);
+            const { relevantFiles, fileCount } = await analyzeRepoFiles(input, filePaths, repoContext.owner, repoContext.repo);
 
             // Step 2: Fetch files  
             setStreamingStatus({ message: `Fetching ${fileCount} file${fileCount !== 1 ? 's' : ''} from GitHub...`, progress: 40 });

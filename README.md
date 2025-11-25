@@ -17,13 +17,13 @@
 
 ---
 
-**RepoMind** is a free, open-source AI-powered coding assistant that lets you chat with any public GitHub repository or developer profile. Using advanced Agentic RAG (Retrieval-Augmented Generation), RepoMind performs deep code analysis without requiring you to clone repositories.
+**RepoMind** is a free, open-source AI-powered coding assistant that lets you chat with any public GitHub repository or developer profile. Using an advanced **Context-Aware Engine**, RepoMind performs deep code analysis without requiring you to clone repositories.
 
 > **Stop reading code. Start talking to it.** 🚀
 
 ## ✨ Features
 
-### 🧠 Agentic RAG Engine
+### 🧠 Context-Aware Engine
 - **Smart Context Loading**: Instead of dumping entire files, RepoMind intelligently selects relevant code snippets based on your query.
 - **Noise Filtering**: Automatically ignores `node_modules`, lockfiles, and build artifacts to focus on source code.
 - **Multi-File Understanding**: Traces dependencies and imports to understand how different parts of the codebase interact.
@@ -44,7 +44,7 @@
 - **Fix Recommendations**: Receive copy-pasteable code patches to resolve security issues.
 
 ### 📱 Mobile-First Experience
-- **Code on the Go**: The only advanced code analysis tool optimized for mobile browsers.
+- **Analyze on the Go**: The only advanced code analysis tool optimized for mobile browsers.
 - **Touch-Friendly Interface**: Swipe, tap, and zoom through codebases on your phone or tablet.
 - **Responsive DevTools**: Access full debugging and search capabilities from anywhere.
 
@@ -66,7 +66,7 @@ RepoMind is designed for **instant, zero-setup analysis**. While other tools req
 | **Profile Insights** | **✅ Developer Analysis** | ❌ No | ❌ No | ❌ No |
 | **Mobile UX** | **✅ Mobile-First** | ⚠️ Desktop Focused | ❌ Desktop Only | ❌ Desktop Only |
 | **Security Scan** | **✅ Free AI Audit** | ✅ (Advanced Security) | ❌ No | ❌ No |
-| **Tech Stack** | **Agentic RAG** | Indexed Search | Proprietary Index | Vector Search |
+| **Tech Stack** | **Context-Aware** | Indexed Search | Proprietary Index | Vector Search |
 
 ### 🎯 Why RepoMind?
 

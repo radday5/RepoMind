@@ -71,9 +71,19 @@ export async function processChatQuery(
  */
 export async function analyzeRepoFiles(
     query: string,
-    filePaths: string[]
+    filePaths: string[],
+    owner?: string,
+    repo?: string
 ): Promise<{ relevantFiles: string[]; fileCount: number }> {
-    const relevantFiles = await analyzeFileSelection(query, filePaths);
+    // Prune the tree to remove noise (images, locks, etc.)
+    // This reduces token usage and improves AI focus
+    const prunedTree = filePaths.filter(path =>
+        !path.match(/\.(png|jpg|jpeg|gif|svg|ico|lock|pdf|zip|tar|gz|map)$/i) &&
+        !path.includes('node_modules/') &&
+        !path.includes('.git/')
+    );
+
+    const relevantFiles = await analyzeFileSelection(query, prunedTree, owner, repo);
     return { relevantFiles, fileCount: relevantFiles.length };
 }
 

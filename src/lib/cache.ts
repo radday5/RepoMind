@@ -93,6 +93,55 @@ export async function getCachedProfileData(username: string): Promise<any | null
 }
 
 /**
+ * Cache File Tree (Large object, important to cache)
+ */
+export async function cacheFileTree(
+    owner: string,
+    repo: string,
+    branch: string,
+    tree: any[]
+): Promise<void> {
+    const key = `tree:${owner}/${repo}:${branch}`;
+    await safeKvOperation(() => kv.setex(key, TTL_REPO, tree));
+}
+
+export async function getCachedFileTree(
+    owner: string,
+    repo: string,
+    branch: string
+): Promise<any[] | null> {
+    const key = `tree:${owner}/${repo}:${branch}`;
+    return await safeKvOperation(() => kv.get<any[]>(key));
+}
+
+/**
+ * Cache Query Selection (Smart Caching)
+ * Maps a query to the files selected by AI
+ */
+export async function cacheQuerySelection(
+    owner: string,
+    repo: string,
+    query: string,
+    files: string[]
+): Promise<void> {
+    // Normalize query to lowercase and trim to increase hit rate
+    const normalizedQuery = query.toLowerCase().trim();
+    const key = `query:${owner}/${repo}:${normalizedQuery}`;
+    // Cache for 24 hours - queries usually yield same files
+    await safeKvOperation(() => kv.setex(key, 86400, files));
+}
+
+export async function getCachedQuerySelection(
+    owner: string,
+    repo: string,
+    query: string
+): Promise<string[] | null> {
+    const normalizedQuery = query.toLowerCase().trim();
+    const key = `query:${owner}/${repo}:${normalizedQuery}`;
+    return await safeKvOperation(() => kv.get<string[]>(key));
+}
+
+/**
  * Clear all cache for a repository (useful for manual invalidation)
  */
 export async function clearRepoCache(owner: string, repo: string): Promise<void> {

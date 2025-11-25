@@ -6,6 +6,8 @@ import {
   getCachedRepoMetadata,
   cacheProfileData,
   getCachedProfileData,
+  cacheFileTree,
+  getCachedFileTree,
 } from "./cache";
 
 // Validate GitHub token
@@ -137,6 +139,12 @@ export async function getRepoFileTree(owner: string, repo: string, branch: strin
     console.warn("Could not fetch branch details, trying with provided name/sha");
   }
 
+  // Check KV cache for tree
+  const cachedTree = await getCachedFileTree(owner, repo, sha);
+  if (cachedTree) {
+    return { tree: cachedTree, hiddenFiles: [] }; // Hidden files not cached separately but that's ok
+  }
+
   const { data } = await octokit.rest.git.getTree({
     owner,
     repo,
@@ -177,6 +185,9 @@ export async function getRepoFileTree(owner: string, repo: string, branch: strin
 
     return true;
   });
+
+  // Cache the filtered tree
+  await cacheFileTree(owner, repo, sha, filteredTree);
 
   return { tree: filteredTree, hiddenFiles };
 }
