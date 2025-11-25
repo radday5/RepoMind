@@ -273,7 +273,7 @@ export function ProfileChatInterface({ profile, profileReadme, repoReadmes }: Pr
                     />
                     <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                            <h1 className="text-lg md:text-2xl font-bold">{profile.name || profile.login}</h1>
+                            <h1 className="text-lg md:text-2xl font-bold truncate max-w-[200px] md:max-w-md">{profile.name || profile.login}</h1>
                             <a
                                 href={profile.html_url}
                                 target="_blank"

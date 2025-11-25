@@ -400,8 +400,8 @@ export function ChatInterface({ repoContext, onToggleSidebar }: ChatInterfacePro
                     >
                         <ArrowLeft className="w-5 h-5 text-zinc-400 hover:text-white" />
                     </Link>
-                    <div className="flex items-center gap-3">
-                        <Github className="w-5 h-5 text-zinc-400" />
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <Github className="w-5 h-5 text-zinc-400 shrink-0" />
                         <h1 className="text-lg font-semibold text-zinc-100 truncate">{repoContext.owner}/{repoContext.repo}</h1>
                     </div>
 
@@ -436,15 +436,7 @@ export function ChatInterface({ repoContext, onToggleSidebar }: ChatInterfacePro
                         <Trash2 className="w-5 h-5" />
                     </button>
 
-                    <a
-                        href={`https://github.com/${repoContext.owner}/${repoContext.repo}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm p-2 md:px-4 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors flex items-center gap-2 shrink-0"
-                    >
-                        <Github className="w-4 h-4" />
-                        <span className="hidden md:inline">View on GitHub</span>
-                    </a>
+
                 </div>
             </div>
 
