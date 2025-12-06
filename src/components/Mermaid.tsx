@@ -217,7 +217,7 @@ export const Mermaid = ({ chart }: { chart: string }) => {
             >
                 <div
                     ref={diagramRef}
-                    className="overflow-x-auto bg-zinc-950/50 p-4 rounded-lg border border-white/5 hover:border-white/10 transition-colors"
+                    className="overflow-x-auto bg-zinc-950/50 p-4 rounded-lg border border-white/5 hover:border-white/10 transition-colors flex justify-center min-w-0"
                     dangerouslySetInnerHTML={{ __html: svg }}
                     style={{ minHeight: svg ? 'auto' : '200px' }}
                 />
@@ -307,12 +307,14 @@ export const Mermaid = ({ chart }: { chart: string }) => {
                             </div>
 
                             {/* Content */}
-                            <div className="flex-1 overflow-auto p-4 bg-zinc-950/50 relative custom-scrollbar">
-                                <div
-                                    ref={modalRef}
-                                    className="min-w-min min-h-min [&>svg]:w-auto [&>svg]:h-auto"
-                                    dangerouslySetInnerHTML={{ __html: svg }}
-                                />
+                            <div className="flex-1 overflow-auto bg-zinc-950/50 relative custom-scrollbar">
+                                <div className="min-h-full w-full flex items-center justify-center p-8">
+                                    <div
+                                        ref={modalRef}
+                                        className="bg-zinc-950 p-4 rounded-lg"
+                                        dangerouslySetInnerHTML={{ __html: svg }}
+                                    />
+                                </div>
                             </div>
                         </motion.div>
                     </motion.div>

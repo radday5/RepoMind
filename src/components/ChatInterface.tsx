@@ -53,7 +53,7 @@ const MessageContent = ({ content, messageId }: { content: string, messageId: st
 
     const components = useMemo(() => {
         const comps = {
-            code: ({ className, children, ...props }: any) => {
+            code: ({ className, children, inline, ...props }: any) => {
                 const match = /language-(\w+)/.exec(className || "");
                 const isMermaid = match && match[1] === "mermaid";
                 const isMermaidJson = match && match[1] === "mermaid-json";
@@ -84,12 +84,21 @@ const MessageContent = ({ content, messageId }: { content: string, messageId: st
                         value={String(children).replace(/\n$/, "")}
                         components={componentsRef.current}
                     />
+                ) : !inline ? (
+                    // Treat non-inline code (triple backticks without language) as markdown block
+                    // This allows Preview/Raw toggle which is useful for mixed content
+                    <CodeBlock
+                        language="markdown"
+                        value={String(children).replace(/\n$/, "")}
+                        components={componentsRef.current}
+                    />
                 ) : (
                     <code className="bg-zinc-800 px-1.5 py-0.5 rounded text-red-400 font-mono text-sm" {...props}>
                         {children}
                     </code>
                 );
             },
+            p: ({ children }: any) => <div className="mb-4 leading-relaxed last:mb-0">{children}</div>,
             pre: ({ children }: any) => <>{children}</>,
             table: ({ children }: any) => (
                 <div className="overflow-x-auto my-4">
