@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -10,37 +10,57 @@ const montserrat = Montserrat({
   weight: ["300", "400", "500", "600", "700"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#09090b",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://repomind-ai.vercel.app"),
   applicationName: "RepoMind",
   title: {
-    default: "Stop reading code. Start talking to it.",
-    template: "%s",
+    default: "RepoMind - Stop reading it! Start talking to it!",
+    template: "%s | RepoMind",
   },
-  description: "Don't just stare at the repo, interrogate it. Deep dive into logic, squash vulnerabilities and ship faster with AI-powered robust analysis.",
+  description: "Agentic CAG-powered analysis for GitHub repositories and developer profiles. Chat with your codebase, generate visual flowcharts, uncover deep insights, detect vulnerabilities, and accelerate development with AI-driven repository intelligence.",
   keywords: [
+    "agentic AI",
+    "compositional agentic generation",
     "github repo visualizer",
     "codebase analysis",
     "ai code assistant",
-    "github repo answering",
+    "repository flowcharts",
+    "code intelligence",
+    "github repo chat",
     "repository chat",
     "code understanding",
     "developer tools",
     "static analysis",
+    "vulnerability detection",
   ],
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
   },
+  manifest: '/manifest.json',
   appleWebApp: {
+    capable: true,
     title: "RepoMind",
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
   },
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "RepoMind: Stop reading code. Start talking to it.",
-    description: "Don't just stare at the repo, interrogate it. Deep dive into logic, squash vulnerabilities and ship faster with AI-powered robust analysis.",
+    title: "RepoMind - Stop reading it! Start talking to it!",
+    description: "Agentic CAG-powered analysis for GitHub repositories. Chat with your codebase, generate visual flowcharts, uncover deep insights, and accelerate development with AI-driven repository intelligence.",
     url: "https://repomind-ai.vercel.app",
     siteName: "RepoMind",
     images: [
@@ -56,8 +76,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "RepoMind: Stop reading code. Start talking to it.",
-    description: "Don't just stare at the repo, interrogate it. Deep dive into logic, squash vulnerabilities and ship faster with AI-powered robust analysis.",
+    title: "RepoMind - Stop reading it! Start talking to it!",
+    description: "Agentic CAG-powered analysis for GitHub repositories. Chat with your codebase, generate visual flowcharts, uncover deep insights, and accelerate development.",
     images: ["/repomind.png"],
     creator: "@repomind",
   },
@@ -73,7 +93,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "NAlIH9k-f2Xwk4cvXUpEw3hsL9a56pR_2X0ZBdBKwQ4",
+    google: "UkRCYeGXDptF64Z3y2sS0d2AUkCSuirzjRZQJUz1iEQ",
   },
 };
 

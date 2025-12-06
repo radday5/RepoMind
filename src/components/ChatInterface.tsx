@@ -535,15 +535,14 @@ export function ChatInterface({ repoContext, onToggleSidebar }: ChatInterfacePro
                             )}
                         >
                             <div className={cn(
-                                "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-lg",
-                                msg.role === "model"
-                                    ? "bg-gradient-to-br from-purple-600 to-blue-600"
-                                    : "bg-gradient-to-br from-zinc-700 to-zinc-900 border border-white/10"
+                                "w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden"
                             )}>
                                 {msg.role === "model" ? (
-                                    <BotIcon className="w-6 h-6 text-white" />
+                                    <BotIcon className="w-full h-full text-white" />
                                 ) : (
-                                    <UserIcon className="w-6 h-6 text-white" />
+                                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                                        <UserIcon className="w-full h-full text-zinc-400" />
+                                    </div>
                                 )}
                             </div>
 
@@ -587,8 +586,8 @@ export function ChatInterface({ repoContext, onToggleSidebar }: ChatInterfacePro
                         animate={{ opacity: 1 }}
                         className="flex gap-4 max-w-3xl mx-auto"
                     >
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shrink-0 shadow-lg animate-pulse">
-                            <BotIcon className="w-6 h-6 text-white opacity-80" />
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 animate-pulse overflow-hidden">
+                            <BotIcon className="w-full h-full text-white opacity-80" />
                         </div>
                         <div className="bg-zinc-900 border border-white/10 p-4 rounded-2xl rounded-tl-none flex-1">
                             {streamingStatus ? (

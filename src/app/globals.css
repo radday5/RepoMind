@@ -33,8 +33,7 @@
 
 .conic-border-container {
   position: relative;
-  border-radius: 0.5rem;
-  /* rounded-lg */
+
   border: 2px solid transparent;
   /* uniform width */
   isolation: isolate;

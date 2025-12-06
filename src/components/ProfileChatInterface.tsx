@@ -378,15 +378,15 @@ export function ProfileChatInterface({ profile, profileReadme, repoReadmes }: Pr
                             )}
                         >
                             <div className={cn(
-                                "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-lg",
+                                "w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg overflow-hidden",
                                 msg.role === "model"
                                     ? "bg-gradient-to-br from-purple-600 to-blue-600"
                                     : "bg-gradient-to-br from-zinc-700 to-zinc-900 border border-white/10"
                             )}>
                                 {msg.role === "model" ? (
-                                    <BotIcon className="w-6 h-6 text-white" />
+                                    <BotIcon className="w-full h-full text-white" />
                                 ) : (
-                                    <UserIcon className="w-6 h-6 text-white" />
+                                    <UserIcon className="w-full h-full text-white" />
                                 )}
                             </div>
 
@@ -415,8 +415,8 @@ export function ProfileChatInterface({ profile, profileReadme, repoReadmes }: Pr
                         animate={{ opacity: 1 }}
                         className="flex gap-4 max-w-3xl mx-auto"
                     >
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shrink-0 shadow-lg animate-pulse">
-                            <BotIcon className="w-6 h-6 text-white opacity-80" />
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shrink-0 shadow-lg animate-pulse overflow-hidden">
+                            <BotIcon className="w-full h-full text-white opacity-80" />
                         </div>
                         <div className="bg-zinc-900 border border-white/10 p-4 rounded-2xl rounded-tl-none flex items-center gap-2">
                             <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />

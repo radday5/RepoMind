@@ -14,8 +14,17 @@ export function WhatsNewModal({ isOpen, onClose }: WhatsNewModalProps) {
 
     const versions = [
         {
-            version: "v1.3.2",
+            version: "v1.3.3",
             isNew: true,
+            features: [
+                "📝 Markdown Support: User input contained between three backticks is now treated as markdown.",
+                "📱 PWA Support: Full Progressive Web App support is now available.",
+                "🐙 GitHub Link: GitHub repository link is now implemented on the webpage."
+            ]
+        },
+        {
+            version: "v1.3.2",
+            isNew: false,
             features: [
                 "⚡ Blazing Fast: Instant profile loads & faster file selection with Flash-Lite.",
                 "🌐 Web Search: Real-time answers for competitors, news, and jobs.",

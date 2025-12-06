@@ -7,9 +7,12 @@ import { Github, ArrowRight, Loader2 } from "lucide-react";
 import { fetchGitHubData } from "./actions";
 import FeatureTiles from "@/components/FeatureTiles";
 import { WhatsNewBadge } from "@/components/WhatsNewBadge";
+import { GitHubBadge } from "@/components/GitHubBadge";
 import { CAGBadge } from "@/components/CAGBadge";
 import CAGComparison from "@/components/CAGComparison";
 import Footer from "@/components/Footer";
+import Image from "next/image";
+import { InstallPWA } from "@/components/InstallPWA";
 
 export default function Home() {
   const [input, setInput] = useState("");
@@ -52,8 +55,10 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden z-10">
-        {/* What's New Badge (Top Right) */}
+        {/* What's New Badge (Top Left) */}
         <WhatsNewBadge />
+        {/* GitHub Badge (Top Right) */}
+        <GitHubBadge />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -61,8 +66,14 @@ export default function Home() {
           transition={{ duration: 0.8 }}
           className="z-10 flex flex-col items-center text-center max-w-2xl w-full px-4"
         >
-          <div className="mb-8 p-4 bg-white/5 rounded-full border border-white/10 backdrop-blur-md">
-            <Github className="w-10 h-10 md:w-12 md:h-12 text-white" />
+          <div className="mb-8 conic-border-container rounded-full w-20 h-20 md:w-24 md:h-24 flex items-center justify-center">
+            <Image
+              src="/1080x1080.png"
+              alt="RepoMind Logo"
+              width={96}
+              height={96}
+              className="w-full h-full object-cover rounded-full"
+            />
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
@@ -154,6 +165,7 @@ export default function Home() {
           }),
         }}
       />
+      <InstallPWA />
     </main>
   );
 }
