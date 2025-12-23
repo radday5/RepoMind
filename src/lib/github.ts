@@ -10,6 +10,12 @@ import {
   getCachedFileTree,
 } from "./cache";
 
+// Force disable any proxy agents
+delete process.env.HTTPS_PROXY;
+delete process.env.https_proxy;
+delete process.env.HTTP_PROXY;
+delete process.env.http_proxy;
+
 // Validate GitHub token
 const githubToken = process.env.GITHUB_TOKEN;
 if (!githubToken) {

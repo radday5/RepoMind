@@ -1,5 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// Force disable any proxy agents
+delete process.env.HTTPS_PROXY;
+delete process.env.https_proxy;
+delete process.env.HTTP_PROXY;
+delete process.env.http_proxy;
+
 // Helper to get a fresh model instance
 function getModel(modelName: string = "gemini-2.5-flash") {
   const apiKey = process.env.GEMINI_API_KEY || "";
