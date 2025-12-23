@@ -460,3 +460,27 @@ export async function getReposReadmes(username: string) {
     return [];
   }
 }
+
+export async function getSimilarRepos(
+  owner: string,
+  repo: string
+): Promise<GitHubRepo[]> {
+  try {
+    const { language } = await getRepo(owner, repo);
+    if (!language) {
+      return [];
+    }
+
+    const { data } = await octokit.rest.search.repos({
+      q: `language:${language}`,
+      sort: "stars",
+      order: "desc",
+      per_page: 5,
+    });
+
+    return data.items as any;
+  } catch (e) {
+    console.error("Failed to fetch similar repos", e);
+    return [];
+  }
+}

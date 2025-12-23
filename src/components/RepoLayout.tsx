@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { RepoSidebar } from "./RepoSidebar";
 import { ChatInterface } from "./ChatInterface";
 import { FilePreview } from "./FilePreview";
+import { SimilarRepos } from "./SimilarRepos";
 
 interface RepoLayoutProps {
     fileTree: any[];
@@ -60,6 +61,9 @@ export function RepoLayout({ fileTree, repoName, owner, repo, hiddenFiles = [], 
                         }}
                         onToggleSidebar={() => setSidebarOpen(true)}
                     />
+                </div>
+                <div className="hidden lg:block w-96 p-4 border-l border-white/10 overflow-y-auto">
+                    <SimilarRepos owner={owner} repo={repo} />
                 </div>
             </div>
 
