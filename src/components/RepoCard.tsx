@@ -60,12 +60,14 @@ export function RepoCard({ name, owner, description, stars, forks, language }: R
 
                     {/* Action buttons */}
                     <div className="flex gap-2">
-                        <Link
+                        <a
                             href={`/chat?q=${owner}/${name}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors text-center"
                         >
                             Analyze Repository
-                        </Link>
+                        </a>
                         <a
                             href={`https://github.com/${owner}/${name}`}
                             target="_blank"

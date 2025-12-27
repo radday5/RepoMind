@@ -37,10 +37,10 @@ export function SimilarRepos({ owner, repo }: SimilarReposProps) {
             key={repo.full_name}
             name={repo.name}
             owner={repo.owner.login}
-            description={repo.description}
+            description={repo.description || undefined}
             stars={repo.stargazers_count}
             forks={repo.forks_count}
-            language={repo.language}
+            language={repo.language || undefined}
           />
         ))}
       </div>
